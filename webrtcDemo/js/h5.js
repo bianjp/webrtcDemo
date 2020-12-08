@@ -83,6 +83,29 @@ let app = new Vue({
     incomingCallPage: false
 
   },
+  mounted: function(){
+    // 从 URL 中提取参数
+    if (window.location.search) {
+      const appKey = (window.location.search.match(/appKey=([^&]*)/) || [])[1];
+      const calleeAccount = (window.location.search.match(/staff=([^&]*)/) || [])[1];
+      WEBRTC_ENV.appKey = appKey ? decodeURIComponent(appKey) : '';
+      this.calleeAccount = calleeAccount ? decodeURIComponent(calleeAccount) : null;
+
+      const account = (window.location.search.match(/account=([^&]*)/) || [])[1];
+      const token = (window.location.search.match(/token=([^&]*)/) || [])[1];
+      // URL 中包含帐号信息时自动登录
+      if (account && token) {
+        this.account = decodeURIComponent(account);
+        WEBRTC_ENV.token = decodeURIComponent(token);
+        try {
+          this.login();
+        } catch (e) {
+          console.error('登录失败', e);
+          alert(e.message);
+        }
+      }
+    }
+  },
   methods: {
     login: function(){
       console.log('开始初始化 im sdk...');
@@ -93,6 +116,18 @@ let app = new Vue({
         appKey: WEBRTC_ENV.appKey,
         token: WEBRTC_ENV.token,
         account: this.account,
+        privateConf: {
+          "lbs_web": "https://im.hn.189.cn:9999/lbs/webconf.jsp",
+          "link_ssl_web": true,
+          "nos_uploader_web": "https://im.hn.189.cn:9999",
+          "https_enabled": true,
+          "nos_downloader": "im.hn.189.cn:9999/{bucket}/{object}",
+          "nos_accelerate": "",
+          "nos_accelerate_host": "",
+          "nt_server": "",
+          "kibana_server": "https://im.hn.189.cn:9999/statistic/realtime/sdkinfo",
+          "report_global_server": "https://im.hn.189.cn:9999/statics/report/realtime/global"
+        },
         syncTeamMembers: false,
         syncSessionUnread: true,
         shouldCountNotifyUnread: function (msg) {
@@ -316,7 +351,7 @@ let app = new Vue({
         pushConfig: {}, //推送消息
         webrtcEnable: true,
         sessionConfig: {
-          videoQuality: Netcall.CHAT_VIDEO_QUALITY_HIGH,
+          videoQuality: Netcall.CHAT_VIDEO_QUALITY_540P,
           videoFrameRate: Netcall.CHAT_VIDEO_FRAME_RATE_15,
           videoBitrate: 0,
           recordVideo: false,
@@ -442,8 +477,8 @@ let app = new Vue({
             accepted: true,
             beCalledInfo: this.incomingCallInfo,
             sessionConfig: {
-              videoQuality: 0,
-              videoFrameRate: 0,
+              videoQuality: Netcall.CHAT_VIDEO_QUALITY_540P,
+              videoFrameRate: Netcall.CHAT_VIDEO_FRAME_RATE_15,
               recordAudio: false,
               recordVideo: false,
               isHostSpeaker: false,

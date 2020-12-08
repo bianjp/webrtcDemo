@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui" />
+    <link rel="icon" href="img/logo.png">
+    <title>链接生成器 - 网易音视频通话 Demo</title>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 10px;
+            line-height: 1.2;
+            font-size: 14px;
+        }
+
+        .form-item {
+            padding: 5px 0;
+        }
+
+        .form-item * {
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .form-item label {
+            width: 100px;
+            text-align: right;
+        }
+
+        .form-item.actions {
+            padding-left: 100px;
+        }
+
+        .form-item input {
+            width: 300px;
+            line-height: 1.5;
+        }
+
+        .form-item textarea {
+            padding: 5px;
+            width: 100%;
+            max-width: 600px;
+        }
+    </style>
+</head>
+<body>
+<form id="form">
+    <div class="form-item">
+        <label for="app-key">App key:</label>
+        <input name="appKey" id="app-key" required data-lpignore="true">
+    </div>
+    <div class="form-item">
+        <label for="staff-account">营业员帐号:</label>
+        <input name="staffAccount" id="staff-account" required data-lpignore="true">
+    </div>
+    <div class="form-item">
+        <label for="staff-token">营业员 Token:</label>
+        <input name="staffToken" id="staff-token" required data-lpignore="true">
+    </div>
+    <div class="form-item">
+        <label for="customer-account">客户帐号:</label>
+        <input name="customerAccount" id="customer-account" required data-lpignore="true">
+    </div>
+    <div class="form-item">
+        <label for="customer-token">客户 Token:</label>
+        <input name="customerToken" id="customer-token" required data-lpignore="true">
+    </div>
+    <div class="form-item actions">
+        <button type="submit">生成链接</button>
+        <br />
+    </div>
+    <div class="form-item">
+        <label for="staff-url">营业员链接:</label>
+        <textarea id="staff-url" rows="5" data-lpignore="true"></textarea>
+    </div>
+    <div class="form-item">
+        <label for="customer-url">客户链接:</label>
+        <textarea id="customer-url" rows="5" data-lpignore="true"></textarea>
+    </div>
+</form>
+
+<script type="text/javascript">
+  function buildUrl(params) {
+    const queryString = Object.keys(params).map(key => key + '=' + encodeURIComponent(params[key])).join('&');
+    return new URL('./?' + queryString, window.location.href).toString();
+  }
+
+  const form = document.getElementById('form');
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    const params = {};
+    Array.prototype.slice.apply(form.elements).filter(e => e.name && e.value).forEach(e => params[e.name] = e.value);
+    const staffParams = {
+      appKey: params.appKey,
+      account: params.staffAccount,
+      token: params.staffToken,
+    };
+    const customerParams = {
+      appKey: params.appKey,
+      account: params.customerAccount,
+      token: params.customerToken,
+      staff: params.staffAccount,
+    };
+    document.getElementById('staff-url').value = buildUrl(staffParams);
+    document.getElementById('customer-url').value = buildUrl(customerParams);
+  });
+</script>
+</body>
+</html>
